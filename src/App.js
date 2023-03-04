@@ -1,34 +1,44 @@
-import React, { useState, useMemo } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import { waitForReact } from 'cypress-react-selector';
+import { useState, useMemo, useEffect } from "react";
+import "./App.css";
 
-describe('My React app', () => {
-  before(() => {
-    cy.visit('/');
-    waitForReact('#root'); // pass the root selector here
-  });
+function App() {
+  const [text, setText] = useState("");
 
-  it('should have rendered the App component', () => {
-    cy.get('h1').should('contain', 'My App');
-  });
-});
+  const calculate = (text) => {
+    const validRegex = new RegExp(/[1-9]/);
 
+    if (validRegex.test(text)) {
+      if (text < 15) {
+        return text;
+      }
+    } else {
+      return false;
+    }
+  };
+  const onChange = (e) => {
+    setText(e.target.value);
+  };
 
-function NumberInput() {
-  const [number, setNumber] = useState('');
-  const isValidNumber = useMemo(() => /^-?\d*\.?\d+$/.test(number), [number]);
-
-  function handleInputChange(event) {
-    setNumber(event.target.value);
-  }
-
+  const memoCalculate = useMemo(() => calculate(text), [text]);
+  useEffect(() => {
+    console.log(memoCalculate, text);
+  }, [memoCalculate, text]);
   return (
-    <div>
-      <input type="text" value={number} onChange={handleInputChange} />
-      {isValidNumber ? (
-        <FontAwesomeIcon icon={faCheck} className="valid-icon" />
-      ) : null}
+    <div className="App">
+      <div className="control has-icons-right">
+        <input
+          className="input is-large"
+          type="text"
+          placeholder="Enter number..."
+          onChange={onChange}
+          value={text}
+        />
+        <span className="icon is-small is-right">
+          <i className={`${memoCalculate ? "fas fa-check" : "fas fa-times"}`} />
+        </span>
+      </div>
     </div>
   );
 }
+
+export default App;
